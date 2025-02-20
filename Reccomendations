@@ -1,0 +1,760 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyNelSmO9yCgtuu9b0RnomJA",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Raghu-938/Recommendation-System/blob/main/Recommendation_System.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Extracting Zip file**\n"
+      ],
+      "metadata": {
+        "id": "lwJbBtXlN3ec"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "id": "DGus2OwNGvu4"
+      },
+      "outputs": [],
+      "source": [
+        "import zipfile\n",
+        "with zipfile.ZipFile(\"ml-latest-small.zip\",'r') as zip_ref:\n",
+        "  zip_ref.extractall(\"sample_data\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n"
+      ],
+      "metadata": {
+        "id": "9I-FrGGpHWkE"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Loading movies and ratings**"
+      ],
+      "metadata": {
+        "id": "0hwzkSJ7OGyO"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ratings=pd.read_csv(\"sample_data/ml-latest-small/ratings.csv\")\n",
+        "movies=pd.read_csv(\"sample_data/ml-latest-small/movies.csv\")\n",
+        "movies=movies[['movieId','title']]"
+      ],
+      "metadata": {
+        "id": "j03WoYpuHevE"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(ratings.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "duPFViO3HuxC",
+        "outputId": "913e7e3e-bed1-4e97-fac7-9ff926bd520b"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "   userId  movieId  rating  timestamp\n",
+            "0       1        1     4.0  964982703\n",
+            "1       1        3     4.0  964981247\n",
+            "2       1        6     4.0  964982224\n",
+            "3       1       47     5.0  964983815\n",
+            "4       1       50     5.0  964982931\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(movies.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zHEFeqQAH6MH",
+        "outputId": "b223cf90-0a29-4f7f-e733-13ad48da14db"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "   movieId                               title\n",
+            "0        1                    Toy Story (1995)\n",
+            "1        2                      Jumanji (1995)\n",
+            "2        3             Grumpier Old Men (1995)\n",
+            "3        4            Waiting to Exhale (1995)\n",
+            "4        5  Father of the Bride Part II (1995)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Merging according to titles**"
+      ],
+      "metadata": {
+        "id": "52xGNTl7nEDe"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ratings=pd.merge(ratings,movies,on=\"movieId\")"
+      ],
+      "metadata": {
+        "id": "qflbLNITIA0K"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(ratings.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "M9PYEqLXImrz",
+        "outputId": "8f9f2a5c-be0a-43eb-e831-83fbc9779d9e"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "   userId  movieId  rating  timestamp                        title\n",
+            "0       1        1     4.0  964982703             Toy Story (1995)\n",
+            "1       1        3     4.0  964981247      Grumpier Old Men (1995)\n",
+            "2       1        6     4.0  964982224                  Heat (1995)\n",
+            "3       1       47     5.0  964983815  Seven (a.k.a. Se7en) (1995)\n",
+            "4       1       50     5.0  964982931   Usual Suspects, The (1995)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Creating a User-Item matrix**"
+      ],
+      "metadata": {
+        "id": "YChbxIfrOZrw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "user_movie_matrix1=ratings.pivot_table(index='userId',columns='title',values='rating').fillna(0)\n",
+        "\n",
+        "user_movie_matrix=user_movie_matrix1.values\n"
+      ],
+      "metadata": {
+        "id": "pDKkMGrGIpXT"
+      },
+      "execution_count": 37,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Splitting data as Training data and Splitting data**"
+      ],
+      "metadata": {
+        "id": "I1tvcs0HOp3K"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install scikit_learn"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mNa4-NQkQiyA",
+        "outputId": "8e0eb726-05db-4770-87df-df4218aee528"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: scikit_learn in /usr/local/lib/python3.10/dist-packages (1.5.2)\n",
+            "Requirement already satisfied: numpy>=1.19.5 in /usr/local/lib/python3.10/dist-packages (from scikit_learn) (1.26.4)\n",
+            "Requirement already satisfied: scipy>=1.6.0 in /usr/local/lib/python3.10/dist-packages (from scikit_learn) (1.13.1)\n",
+            "Requirement already satisfied: joblib>=1.2.0 in /usr/local/lib/python3.10/dist-packages (from scikit_learn) (1.4.2)\n",
+            "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.10/dist-packages (from scikit_learn) (3.5.0)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import train_test_split"
+      ],
+      "metadata": {
+        "id": "Vbp0ugQ3Qqjc"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_data,test_data=train_test_split(ratings,test_size=0.2,random_state=42)"
+      ],
+      "metadata": {
+        "id": "ExwtUEUKNkye"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **finding cosine similarity among users**"
+      ],
+      "metadata": {
+        "id": "fMsDC_TtoDuz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.metrics.pairwise import cosine_similarity"
+      ],
+      "metadata": {
+        "id": "Jp4-SptXQUUx"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "user_similarity=cosine_similarity(user_movie_matrix)\n",
+        "user_similarity_df=pd.DataFrame(user_similarity,index=user_movie_matrix1.index,columns=user_movie_matrix1.index)\n",
+        "print(user_similarity_df.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aPdu0PxfRoef",
+        "outputId": "ebb26a19-6cc0-41e7-813d-5ba91cbe1773"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "userId       1         2         3         4         5         6         7    \\\n",
+            "userId                                                                         \n",
+            "1       1.000000  0.027283  0.059720  0.194395  0.129080  0.128152  0.158744   \n",
+            "2       0.027283  1.000000  0.000000  0.003726  0.016614  0.025333  0.027585   \n",
+            "3       0.059720  0.000000  1.000000  0.002251  0.005020  0.003936  0.000000   \n",
+            "4       0.194395  0.003726  0.002251  1.000000  0.128659  0.088491  0.115120   \n",
+            "5       0.129080  0.016614  0.005020  0.128659  1.000000  0.300349  0.108342   \n",
+            "\n",
+            "userId       8         9         10   ...       601       602       603  \\\n",
+            "userId                                ...                                 \n",
+            "1       0.136968  0.064263  0.016875  ...  0.080554  0.164455  0.221486   \n",
+            "2       0.027257  0.000000  0.067445  ...  0.202671  0.016866  0.011997   \n",
+            "3       0.004941  0.000000  0.000000  ...  0.005048  0.004892  0.024992   \n",
+            "4       0.062969  0.011361  0.031163  ...  0.085938  0.128273  0.307973   \n",
+            "5       0.429075  0.000000  0.030611  ...  0.068048  0.418747  0.110148   \n",
+            "\n",
+            "userId       604       605       606       607       608       609       610  \n",
+            "userId                                                                        \n",
+            "1       0.070669  0.153625  0.164191  0.269389  0.291097  0.093572  0.145321  \n",
+            "2       0.000000  0.000000  0.028429  0.012948  0.046211  0.027565  0.102427  \n",
+            "3       0.000000  0.010694  0.012993  0.019247  0.021128  0.000000  0.032119  \n",
+            "4       0.052985  0.084584  0.200395  0.131746  0.149858  0.032198  0.107683  \n",
+            "5       0.258773  0.148758  0.106435  0.152866  0.135535  0.261232  0.060792  \n",
+            "\n",
+            "[5 rows x 610 columns]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Predicting unknown Ratings**"
+      ],
+      "metadata": {
+        "id": "OGG_HzIRoSJn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def predictions(user_movie_matrix,user_similarity_matrix):\n",
+        "  mean_rating=user_movie_matrix.mean(axis=1)\n",
+        "  rating_diff=(user_movie_matrix - mean_rating[:,np.newaxis])\n",
+        "  pred=mean_rating[:,np.newaxis]+user_similarity_matrix.dot(rating_diff)/np.array([np.abs(user_similarity_matrix).sum(axis=1)]).T\n",
+        "  return pred"
+      ],
+      "metadata": {
+        "id": "8vcNW35kRvCH"
+      },
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "predicted_ratings=predictions(user_movie_matrix1.values,user_similarity_df.values)\n",
+        "print(predicted_ratings)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PUEw_6vzd0XU",
+        "outputId": "39062cf8-8e3e-4651-a44a-d0e67046a2b3"
+      },
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[[ 0.02560548  0.03059038  0.0315963  ...  0.03885832  0.30124734\n",
+            "   0.02144231]\n",
+            " [-0.04885027 -0.05242888 -0.05357387 ... -0.03084344  0.09906232\n",
+            "  -0.06158879]\n",
+            " [-0.06432713 -0.06671188 -0.02829163 ... -0.04840215  0.23374791\n",
+            "  -0.07369782]\n",
+            " ...\n",
+            " [ 0.18653201  0.18577795  0.18737016 ...  0.20505716  0.40884919\n",
+            "   0.17648002]\n",
+            " [-0.03611711 -0.03243625 -0.03245831 ... -0.02666406  0.07078844\n",
+            "  -0.03838186]\n",
+            " [ 0.44031001  0.4056817   0.40707942 ...  0.44138402  0.6051471\n",
+            "   0.39356425]]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Testing**"
+      ],
+      "metadata": {
+        "id": "wt1ZmmwiogHS"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def recommend_movies(user_id,user_movie_matrix,predicted_ratings,movies,num_recommendations=5):\n",
+        "  user_ratings=user_movie_matrix.loc[user_id]\n",
+        "  unratedMovies=user_ratings[user_ratings==0].index\n",
+        "  predicted_scores=pd.Series(predicted_ratings[user_id-1],index=user_movie_matrix.columns)\n",
+        "  recommendations=predicted_scores.loc[unratedMovies].sort_values(ascending=False).head(num_recommendations)\n",
+        "  return recommendations\n"
+      ],
+      "metadata": {
+        "id": "L2zU12bKe3Sb"
+      },
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**testing for user1**"
+      ],
+      "metadata": {
+        "id": "c5NUAtv8jq2i"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(recommend_movies(1,user_movie_matrix1,predicted_ratings,movies))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "uiNwVnP2jpkC",
+        "outputId": "d25fba00-cbfe-449e-83ea-9cecfdc2d166"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "title\n",
+            "Shawshank Redemption, The (1994)                             2.640944\n",
+            "Terminator 2: Judgment Day (1991)                            2.080452\n",
+            "Godfather, The (1972)                                        1.855447\n",
+            "Sixth Sense, The (1999)                                      1.661853\n",
+            "Lord of the Rings: The Fellowship of the Ring, The (2001)    1.623584\n",
+            "dtype: float64\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Evalution**"
+      ],
+      "metadata": {
+        "id": "mCtjkfZci3nn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.metrics import mean_squared_error\n",
+        "def evaluate_model(user_movie_matrix1,predicted_ratings):\n",
+        "  ratedmovies=user_movie_matrix1.values\n",
+        "  rmse=np.sqrt(mean_squared_error(ratedmovies[ratedmovies.nonzero()],predicted_ratings[ratedmovies.nonzero()]))\n",
+        "  return rmse\n",
+        "\n",
+        "\n",
+        "print(evaluate_model(user_movie_matrix1,predicted_ratings))\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "XzfWHZZhjOwJ",
+        "outputId": "5d24dbd8-9e0d-4818-8d65-078e2ca38d4f"
+      },
+      "execution_count": 53,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "2.965969850360928\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Optimization using SVD**"
+      ],
+      "metadata": {
+        "id": "bqBQQARloksg"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from scipy.sparse.linalg import svds"
+      ],
+      "metadata": {
+        "id": "SW7a9rk_mmZG"
+      },
+      "execution_count": 41,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "u,sigma,vt=svds(user_movie_matrix1.values,k=50)\n",
+        "sigma=np.diag(sigma)"
+      ],
+      "metadata": {
+        "id": "gOrmt09tmyCF"
+      },
+      "execution_count": 44,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "predicted_ratings_svd=np.dot(np.dot(u,sigma),vt)\n",
+        "predicted_ratings_svd_df=pd.DataFrame(predicted_ratings_svd,index=user_movie_matrix1.index,columns=user_movie_matrix1.columns)\n",
+        "print(predicted_ratings_svd_df)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "collapsed": true,
+        "id": "ZTQYMQFrvK5l",
+        "outputId": "2d11743d-82ff-41ed-ed8b-22e9a0388dd7"
+      },
+      "execution_count": 46,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "title   '71 (2014)  'Hellboy': The Seeds of Creation (2004)  \\\n",
+            "userId                                                        \n",
+            "1        -0.069287                                 0.018767   \n",
+            "2        -0.028678                                -0.012015   \n",
+            "3         0.017487                                 0.001239   \n",
+            "4        -0.009402                                 0.007128   \n",
+            "5         0.014022                                 0.004154   \n",
+            "...            ...                                      ...   \n",
+            "606       0.023647                                -0.006764   \n",
+            "607       0.009502                                 0.015175   \n",
+            "608       0.001271                                -0.081955   \n",
+            "609      -0.002226                                 0.005341   \n",
+            "610       3.879142                                -0.024543   \n",
+            "\n",
+            "title   'Round Midnight (1986)  'Salem's Lot (2004)  \\\n",
+            "userId                                                \n",
+            "1                    -0.042895            -0.038633   \n",
+            "2                    -0.010785             0.000667   \n",
+            "3                     0.004907             0.002812   \n",
+            "4                    -0.014513            -0.004971   \n",
+            "5                     0.001643            -0.007565   \n",
+            "...                        ...                  ...   \n",
+            "606                  -0.017570             0.027698   \n",
+            "607                   0.004493             0.001107   \n",
+            "608                  -0.056991            -0.005626   \n",
+            "609                   0.005613            -0.001116   \n",
+            "610                  -0.025389             0.014882   \n",
+            "\n",
+            "title   'Til There Was You (1997)  'Tis the Season for Love (2015)  \\\n",
+            "userId                                                               \n",
+            "1                       -0.049699                        -0.007370   \n",
+            "2                       -0.003074                        -0.007729   \n",
+            "3                        0.002341                        -0.001500   \n",
+            "4                        0.017351                        -0.033052   \n",
+            "5                       -0.010141                        -0.009996   \n",
+            "...                           ...                              ...   \n",
+            "606                      0.080438                        -0.002075   \n",
+            "607                     -0.008372                        -0.004232   \n",
+            "608                     -0.032920                        -0.043332   \n",
+            "609                     -0.009124                         0.003415   \n",
+            "610                      0.032814                        -0.016667   \n",
+            "\n",
+            "title   'burbs, The (1989)  'night Mother (1986)  (500) Days of Summer (2009)  \\\n",
+            "userId                                                                          \n",
+            "1                 0.540617             -0.009627                    -0.605885   \n",
+            "2                 0.003357              0.008565                     0.149107   \n",
+            "3                 0.089847             -0.006716                     0.027147   \n",
+            "4                -0.372746              0.009112                    -0.227757   \n",
+            "5                -0.108389              0.002099                     0.011011   \n",
+            "...                    ...                   ...                          ...   \n",
+            "606              -0.085235              0.003498                    -0.550056   \n",
+            "607               0.244043              0.012814                     0.088166   \n",
+            "608               0.436091             -0.043894                    -0.133154   \n",
+            "609               0.026079             -0.001325                    -0.071840   \n",
+            "610               0.119515             -0.006774                     3.760518   \n",
+            "\n",
+            "title   *batteries not included (1987)  ...  Zulu (2013)  [REC] (2007)  \\\n",
+            "userId                                  ...                              \n",
+            "1                             0.211192  ...     0.013099     -0.460020   \n",
+            "2                            -0.006173  ...     0.004154     -0.015531   \n",
+            "3                            -0.007325  ...     0.000466      0.043423   \n",
+            "4                             0.053492  ...    -0.004254     -0.145385   \n",
+            "5                            -0.096820  ...     0.004482      0.048453   \n",
+            "...                                ...  ...          ...           ...   \n",
+            "606                           0.091252  ...     0.008334      0.060057   \n",
+            "607                           0.174952  ...    -0.007348      0.468143   \n",
+            "608                           0.031513  ...     0.018198      0.354038   \n",
+            "609                           0.011696  ...     0.001056      0.019660   \n",
+            "610                          -0.002187  ...     0.006174      3.965914   \n",
+            "\n",
+            "title   [REC]² (2009)  [REC]³ 3 Génesis (2012)  \\\n",
+            "userId                                           \n",
+            "1            0.019474                -0.054220   \n",
+            "2           -0.027589                -0.034685   \n",
+            "3            0.022705                 0.022107   \n",
+            "4           -0.069962                -0.057734   \n",
+            "5            0.013028                 0.004971   \n",
+            "...               ...                      ...   \n",
+            "606          0.032516                 0.038254   \n",
+            "607          0.056999                 0.015934   \n",
+            "608          0.016481                 0.009475   \n",
+            "609          0.010333                -0.004505   \n",
+            "610          3.398768                 2.911950   \n",
+            "\n",
+            "title   anohana: The Flower We Saw That Day - The Movie (2013)  \\\n",
+            "userId                                                           \n",
+            "1                                               -0.021501        \n",
+            "2                                                0.016193        \n",
+            "3                                               -0.001260        \n",
+            "4                                                0.001657        \n",
+            "5                                               -0.003763        \n",
+            "...                                                   ...        \n",
+            "606                                             -0.030779        \n",
+            "607                                              0.003529        \n",
+            "608                                             -0.010645        \n",
+            "609                                              0.000872        \n",
+            "610                                             -0.023952        \n",
+            "\n",
+            "title   eXistenZ (1999)  xXx (2002)  xXx: State of the Union (2005)  \\\n",
+            "userId                                                                \n",
+            "1              0.339775   -0.286041                       -0.187782   \n",
+            "2              0.059240   -0.104825                       -0.010205   \n",
+            "3              0.022077    0.001688                        0.008866   \n",
+            "4              0.096298   -0.198194                       -0.040464   \n",
+            "5             -0.080241   -0.007740                        0.045689   \n",
+            "...                 ...         ...                             ...   \n",
+            "606            0.068280    0.193172                       -0.014553   \n",
+            "607            0.429961    0.169634                        0.065256   \n",
+            "608            2.970628    2.386631                        0.023173   \n",
+            "609            0.008787   -0.005232                        0.024702   \n",
+            "610           -0.053707    1.952171                        1.422885   \n",
+            "\n",
+            "title   ¡Three Amigos! (1986)  À nous la liberté (Freedom for Us) (1931)  \n",
+            "userId                                                                    \n",
+            "1                    1.500375                                   0.033463  \n",
+            "2                    0.056609                                  -0.000368  \n",
+            "3                    0.052732                                   0.003761  \n",
+            "4                    0.015941                                  -0.005385  \n",
+            "5                   -0.091615                                   0.001638  \n",
+            "...                       ...                                        ...  \n",
+            "606                  0.230288                                   0.009736  \n",
+            "607                  0.179508                                   0.030917  \n",
+            "608                  0.537806                                   0.017467  \n",
+            "609                  0.023109                                  -0.003797  \n",
+            "610                 -0.258588                                   0.009695  \n",
+            "\n",
+            "[610 rows x 9719 columns]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(recommend_movies(1,user_movie_matrix1,predicted_ratings_svd,movies))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "uAoCxolbxLYo",
+        "outputId": "b80e9e8c-7282-4779-f90b-47c07835ecb1"
+      },
+      "execution_count": 52,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Series([], Name: 1, dtype: float64) 5\n",
+            "title\n",
+            "Die Hard (1988)                   4.008569\n",
+            "Godfather: Part II, The (1974)    3.304911\n",
+            "Jaws (1975)                       3.302400\n",
+            "Breakfast Club, The (1985)        2.869948\n",
+            "Godfather, The (1972)             2.862019\n",
+            "dtype: float64\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(evaluate_model(user_movie_matrix1,predicted_ratings_svd))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "6F9OK3s7xPUw",
+        "outputId": "94addd5e-92dd-4692-e265-02ee53de0f85"
+      },
+      "execution_count": 56,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1.9976811729543087\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Conclusion:**\n",
+        "\n",
+        "**By compared to cosine similarity model ,the error rate is less.So,SVD model give more accurate results.**"
+      ],
+      "metadata": {
+        "id": "DCm7NIhfz9rY"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "mpfPBYzBye6c"
+      },
+      "execution_count": 55,
+      "outputs": []
+    }
+  ]
+}
